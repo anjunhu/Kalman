@@ -1,0 +1,4 @@
+kalmanFilterC.c:11:5:kalmanFilterC	104	dynamic
+kalmanFilterC.c:46:7:sumSqDev	32	static
+kalmanFilterC.c:54:7:corrC	48	static
+kalmanFilterC.c:66:5:convC	32	static
