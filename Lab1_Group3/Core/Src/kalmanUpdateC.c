@@ -9,23 +9,22 @@
 #include "lab1util.h"
 
 float kalmanUpdateC(struct KalmanState* ksp, float measurement){
-	if (isnan(ksp->k) || isnan(ksp->p) || isnan(ksp->q) || isnan(ksp->x) || isnan(ksp->r)
-			|| isinf(ksp->k) || isinf(ksp->p) || isinf(ksp->q) || isinf(ksp->x) || isinf(ksp->r)){
-		return NAN;
-	}
+//	if (isnan(ksp->k) || isnan(ksp->p) || isnan(ksp->q) || isnan(ksp->x) || isnan(ksp->r)
+//			|| isinf(ksp->k) || isinf(ksp->p) || isinf(ksp->q) || isinf(ksp->x) || isinf(ksp->r)){
+//		return NAN;
+//	}
 
 	struct KalmanState ks;
-	ks = *ksp;
+	memcpy(&ks, ksp, sizeof(ks));
 
 	ks.p += ks.q;
 	ks.k = ks.p / (ks.p + ks.r);
 	ks.x += ks.k * (measurement - ks.x);
 	ks.p -= ks.k * ks.p;
 
-	if (isnan(ks.k) || isnan(ks.p) || isnan(ks.q) || isnan(ks.x) || isnan(ks.r)
-				|| isinf(ks.k) || isinf(ks.p) || isinf(ks.q) || isinf(ks.x) || isinf(ks.r)){
-			return NAN;
-		}
-	memcpy(&ks, ksp, sizeof(ks));
+	if (isnan(ks.k) || isinf(ks.p) || isinf(ks.x) || isnan(ks.x)
+			|| isnan(ks.p) || isinf(ks.k))	return NAN;
+
+	memcpy(ksp, &ks, sizeof(ks));
 	return ks.x;
 }

@@ -19,18 +19,17 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stdio.h"
-#include "arm_math.h"
-#include "lab1util.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
+#include "arm_math.h"
+#include "lab1util.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+#define ITM_Port32(n) (*((volatile unsigned long *) (0xE0000000+4*n)))
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -58,13 +57,13 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int _write(int file, char *ptr, int len)
-{
-  int i=0;
-  for(i=0 ; i<len ; i++)
-    ITM_SendChar((*ptr++));
-  return len;
-}
+//int _write(int file, char *ptr, int len)
+//{
+//  int i=0;
+//  for(i=0 ; i<len ; i++)
+//    ITM_SendChar((*ptr++));
+//  return len;
+//}
 /* USER CODE END 0 */
 
 /**
@@ -95,14 +94,52 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_TIM2_Init();
+
   /* USER CODE BEGIN 2 */
-  struct KalmanState ks = {
+  struct KalmanState ks5A = {
  		  .q = 0.1,
  		  .r = 0.1,
  		  .x = 5,
  		  .p = 0.1,
  		  .k = 0.0
    };
+  struct KalmanState ks50A = {
+ 		  .q = 0.1,
+ 		  .r = 0.1,
+ 		  .x = 50,
+ 		  .p = 0.1,
+ 		  .k = 0.0
+   };
+  struct KalmanState ks5AC = {
+ 		  .q = 0.1,
+ 		  .r = 0.1,
+ 		  .x = 5,
+ 		  .p = 0.1,
+ 		  .k = 0.0
+   };
+  struct KalmanState ks50AC = {
+ 		  .q = 0.1,
+ 		  .r = 0.1,
+ 		  .x = 50,
+ 		  .p = 0.1,
+ 		  .k = 0.0
+   };
+  struct KalmanState ks5C = {
+   		  .q = 0.1,
+   		  .r = 0.1,
+   		  .x = 5,
+   		  .p = 0.1,
+   		  .k = 0.0
+     };
+    struct KalmanState ks50C = {
+   		  .q = 0.1,
+   		  .r = 0.1,
+   		  .x = 50,
+   		  .p = 0.1,
+   		  .k = 0.0
+     };
+
+
   struct KalmanState ksZero = {
 		  .q = 0,
 		  .r = 0,
@@ -125,27 +162,59 @@ int main(void)
   		  .k = 0.0
     };
 
-  float numpyrandom[50] = { 1.2405287 , -0.58042162, -4.65508137, -0.94511273,  4.9037651 ,
-         -2.39455358, -4.49552552, -4.55744633, -0.84917579, -0.40588314,
-          2.3455748 , -4.48949792, -0.36566707,  1.70622842,  3.97611789,
-         -0.09048916,  3.4319913 , -3.93816834,  0.66123942,  4.95900239,
-          2.55794622, -1.59239511,  1.10849273,  2.58672241, -4.7590001 ,
-         -4.33165166,  0.36677395, -0.26240752, -0.67899625,  0.67738246,
-         -3.4863644 ,  2.4833349 ,  0.50918963, -0.5398202 ,  2.49346809,
-         -1.09611388, -3.02715952, -4.85066748,  0.08767451, -0.09092181,
-          4.10534337, -4.64439689, -3.8368672 , -0.884305  ,  4.76713073,
-         -2.0377844 ,  1.52194299, -0.33423315,  0.9391162 , -4.69648876};
+//  float TEST_ARRAY[101] = {10.4915760032, 10.1349974709, 9.53992591829, 9.60311878706, 10.4858891793, 10.1104642352, 9.51066931906, 9.75755656493, 9.82154078273, 10.2906541933, 10.4861328671, 9.57321181356, 9.70882714139, 10.4359069357, 9.70644021369, 10.2709894039, 10.0823149505, 10.2954563443, 9.57130449017, 9.66832136479, 10.4521677502, 10.4287240667, 10.1833650752, 10.0066049721, 10.3279461634, 10.4767210803, 10.3790964606, 10.1937408814, 10.0318963522, 10.4939180917, 10.2381858895, 9.59703103024, 9.62757986516, 10.1816981174, 9.65703773168, 10.3905666599, 10.0941977598, 9.93515274393, 9.71017053437, 10.0303874259, 10.0173504397, 9.69022731474, 9.73902896102, 9.52524419732, 10.3270730526, 9.54695650657, 10.3573960542, 9.88773266876, 10.1685038683, 10.1683694089, 9.88406620159, 10.3290065898, 10.2547227265, 10.4733422906, 10.0133952458, 10.4205693583, 9.71335255372, 9.89061396699, 10.1652744131, 10.2580948608, 10.3465431058, 9.98446410493, 9.79376005657, 10.202518901, 9.83867150985, 9.89532986869, 10.2885062658, 9.97748768804, 10.0403923759, 10.1538911808, 9.78303667556, 9.72420149909, 9.59117495073, 10.1716116012, 10.2015818969, 9.90650056596, 10.3251329834, 10.4550120431, 10.4925749165, 10.1548177178, 9.60547133785, 10.4644672766, 10.2326496615, 10.2279703226, 10.3535284606, 10.2437410625, 10.3851531317, 9.90784804928, 9.98208344925, 9.52778805729, 9.69323876912, 9.92987312087, 9.73938925207, 9.60543743477, 9.79600805462, 10.4950988486, 10.2814361401, 9.7985283333, 9.6287888922, 10.4491538991, 9.5799256668};
 
-  float blankslate[50];
+  float TEST_ARRAY[101] = {0.50797903,  2.08147823, -2.09095261,  0.10827605,  3.92946954,
+      3.96293089, -3.7441469 , -2.92757122, -4.48532797, -0.59190156,
+     -4.70123789, -0.43166776,  1.49144048, -2.21512717,  1.76254902,
+      0.90862817, -4.76018118,  0.58854088, -2.40747553, -0.84898803,
+     -2.16474918,  1.93137918, -0.59546282, -3.43132262,  0.44649018,
+      2.80314765, -1.93636468, -2.78042116, -1.12028742,  4.3638365 ,
+      4.75995422,  1.72383676,  4.02834109,  3.45750871, -1.22005959,
+     -4.07782991,  1.53410903,  0.57840762, -1.38435237, -2.74945495,
+     -0.93480084, -0.31059751, -2.30764422, -2.08207226, -0.42313601,
+      3.60533913,  0.86252904, -2.16512138, -2.22022493, -0.45377924,
+     -2.94589655, -2.98621289,  0.1403506 , -4.12770631, -0.16414468,
+     -1.37823788,  2.07686622,  2.46746223,  1.91092922,  1.89180414,
+     -1.26399876,  1.68134805, -1.60151336,  0.7279387 , -1.74192842,
+     -0.54854951, -4.38471069, -2.57324578,  4.71602606, -2.69415796,
+      1.91477511,  1.50476858,  2.23939139, -0.24911389,  0.96663775,
+     -4.33030576, -4.27437862, -3.01023974, -3.48139003, -3.99895655,
+     -3.70706135,  0.53277732, -3.12185175,  4.52101243,  1.81611779,
+      0.41019673,  2.07180601, -2.36113329,  4.26725684,  3.39193058,
+      2.26319498, -0.19760044,  3.42103186,  2.44752323,  1.60325906,
+      4.13975267,  1.33665564, -1.34059415,  0.52844573, -3.03619423,
+     -3.07927704};
 
-  kalmanFilterC(numpyrandom, blankslate, &ks, 50);
+  int resultholder = 12345;
 
-  //  for (int i=0; i<50; i++){
-//
-//	  float resultholder = kalmanUpdateA( &ks, (float)i);
-//	  printf("On iteration %d: q=%f r=%f p=%f x=%f=%f k=%f\n", i, ks.q, ks.r, ks.p , ks.x, resultholder , ks.k);
-//
-//  }
+  float output[101];
+
+
+  memset(output, 0, sizeof(output));
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ks5C, 101);
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ks50C, 101);
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksZero, 101);
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksOverflow, 101);
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksOverflowN, 101);
+
+  memset(output, 0, sizeof(output));
+  resultholder = 12345;
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ks5A, 101);
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ks50A, 101);
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksZero, 101);
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksOverflow, 101);
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksOverflowN, 101);
+
+  memset(output, 0, sizeof(output));
+  resultholder = 12345;
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ks5AC, 101);
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ks50AC, 101);
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksZero, 101);
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksOverflow, 101);
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksOverflowN, 101);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -153,6 +222,19 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+	  ITM_Port32(31) = 11111;
+	  for (int i=0; i<1000; i++){
+		  resultholder = kalmanFilterA(TEST_ARRAY, output, &ks5A, 101);
+	  }
+	  ITM_Port32(31) = 22222;
+	  for (int i=0; i<1000; i++){
+		  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ks5AC, 101);
+	  }
+	  ITM_Port32(31) = 33333;
+	  for (int i=0; i<1000; i++){
+	  		  resultholder = kalmanFilterC(TEST_ARRAY, output, &ks5C, 101);
+	  	  }
+	  ITM_Port32(31) = 44444;
 
     /* USER CODE BEGIN 3 */
   }

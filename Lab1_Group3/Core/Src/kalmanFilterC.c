@@ -7,41 +7,65 @@
 #include "main.h"
 #include "math.h"
 #include "lab1util.h"
+#include "cmsis_gcc.h"
 
 int kalmanFilterC(float* InputArray, float* OutputArray, struct KalmanState* kstate, int length){
-	float avgIn = 0.0;
-	float avgOut = 0.0;
-	float avgDiff = 0.0;
+//	float avgIn = 0.0;
+//	float avgOut = 0.0;
+//	float avgDiff = 0.0;
+//
+//
+//	float diffArray[length];
+//	float convArray[length*2-1];
+
+	__set_FPSCR(__get_FPSCR() & 0xFFFFFFF0);
+
+	for(int i = 0; i < length; i++){
+		float updateResult = kalmanUpdateC(kstate, InputArray[i]);
+		if (isnan(updateResult) || isinf(updateResult)){
+			//Return FPSCR as an error flag
+			return __get_FPSCR() & 0x0000000F;
+		}
+		OutputArray[i] = updateResult;
+//		diffArray[i] = OutputArray[i] - InputArray[i];
+//
+//		avgIn += InputArray[i];
+//		avgOut += OutputArray[i];
+//		avgDiff += diffArray[i];
+	}
+
+//	avgIn = avgIn/(float)length;
+//	avgOut = avgOut/(float)length;
+//	avgDiff = avgDiff/(float)length;
+//
+//	float varDiff = sumSqDev(diffArray, avgDiff, length) / (float)length;
+//	float stdDiff = powf(varDiff, 0.5);
+//	float correlation = corrC(InputArray, OutputArray, avgIn, avgOut, length);
+//
+//	convC(InputArray, OutputArray, convArray, length, length);
+
+	return 0;
+}
 
 
-	float diffArray[length];
-	float convArray[length*2-1];
+int kalmanFilterAinC(float* InputArray, float* OutputArray, struct KalmanState* kstate, int length){
 
 	for(int i = 0; i < length; i++){
 		float updateResult = kalmanUpdateA(kstate, InputArray[i]);
 		if (isnan(updateResult) || isinf(updateResult)){
-			return -1;
+			return __get_FPSCR() & 0x0000000F;
 		}
 		OutputArray[i] = updateResult;
-		diffArray[i] = OutputArray[i] - InputArray[i];
-
-		avgIn += InputArray[i];
-		avgOut += OutputArray[i];
-		avgDiff += diffArray[i];
 	}
-
-	avgIn = avgIn/(float)length;
-	avgOut = avgOut/(float)length;
-	avgDiff = avgDiff/(float)length;
-
-	float varDiff = sumSqDev(diffArray, avgDiff, length) / (float)length;
-	float stdDiff = powf(varDiff, 0.5);
-	float correlation = corrC(InputArray, OutputArray, avgIn, avgOut, length);
-
-	convC(InputArray, OutputArray, convArray, length, length);
 
 	return 0;
 }
+
+
+
+/*
+ * PART II
+ */
 
 float sumSqDev (float* inputArray, float avg, int length){
 	float sumSqDev = 0.0;
