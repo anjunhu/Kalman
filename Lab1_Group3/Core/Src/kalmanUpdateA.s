@@ -20,14 +20,14 @@ kalmanUpdateA:
 			BIC R4, R4, #15
 			VMSR FPSCR, R4
 
-			VLDMIA.f32 R0!, {S4-S8} // q, r, x, p, k in S4, 5, 6, 7, 8
+			VLDMIA.f32 R0!, {S4-S8} 		// q, r, x, p, k in S4, 5, 6, 7, 8
 
-			VADD.f32 S7, S7, S4 // p = p + q
-			VADD.f32 S9, S7, S5 // p + r
-			VDIV.f32 S8, S7, S9 // k = p / (p + r)
-			VSUB.f32 S9, S0, S6 // measurement - x
-			VMLA.f32 S6, S8, S9 // x = x + k*(measurement - x)
-			VMLS.f32 S7, S8, S7 // p = p - k*p
+			VADD.f32 S7, S7, S4 			// p = p + q
+			VADD.f32 S9, S7, S5 			// p + r
+			VDIV.f32 S8, S7, S9 			// k = p / (p + r)
+			VSUB.f32 S9, S0, S6 			// measurement - x
+			VMLA.f32 S6, S8, S9 			// x = x + k*(measurement - x)
+			VMLS.f32 S7, S8, S7 			// p = p - k*p
 
 			VMRS R4, FPSCR
 			ANDS R4, R4, #15				// check for exceptions R4, R4, #28

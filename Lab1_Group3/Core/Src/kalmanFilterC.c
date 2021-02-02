@@ -14,7 +14,7 @@ int kalmanFilterC(float* InputArray, float* OutputArray, struct KalmanState* kst
 //	float avgOut = 0.0;
 //	float avgDiff = 0.0;
 //
-//
+//	// a. Subtraction of original and data obtained by Kalman filter tracking.
 //	float diffArray[length];
 //	float convArray[length*2-1];
 
@@ -34,14 +34,21 @@ int kalmanFilterC(float* InputArray, float* OutputArray, struct KalmanState* kst
 //		avgDiff += diffArray[i];
 	}
 
+
+	// b. Calculation of the standard deviation and the average of the difference obtained in a).
 //	avgIn = avgIn/(float)length;
 //	avgOut = avgOut/(float)length;
 //	avgDiff = avgDiff/(float)length;
 //
 //	float varDiff = sumSqDev(diffArray, avgDiff, length) / (float)length;
 //	float stdDiff = powf(varDiff, 0.5);
+
+
+	// c. Calculation of the correlation between the original and tracked vectors.
 //	float correlation = corrC(InputArray, OutputArray, avgIn, avgOut, length);
-//
+
+
+	// d. Calculation of the convolution between the two vectors.
 //	convC(InputArray, OutputArray, convArray, length, length);
 
 	return 0;

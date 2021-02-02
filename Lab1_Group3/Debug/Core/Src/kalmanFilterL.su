@@ -1,1 +1,1 @@
-kalmanFilterL.c:10:5:kalmanFilterL	32	static
+kalmanFilterL.c:12:5:kalmanFilterL	120	dynamic,ignoring_inline_asm

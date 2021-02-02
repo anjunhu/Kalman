@@ -1,5 +1,5 @@
 kalmanFilterC.c:12:5:kalmanFilterC	48	static,ignoring_inline_asm
-kalmanFilterC.c:51:5:kalmanFilterAinC	40	static,ignoring_inline_asm
-kalmanFilterC.c:70:7:sumSqDev	32	static
-kalmanFilterC.c:78:7:corrC	48	static
-kalmanFilterC.c:90:5:convC	32	static
+kalmanFilterC.c:58:5:kalmanFilterAinC	40	static,ignoring_inline_asm
+kalmanFilterC.c:77:7:sumSqDev	32	static
+kalmanFilterC.c:85:7:corrC	48	static
+kalmanFilterC.c:97:5:convC	32	static
