@@ -6,28 +6,37 @@
 .global kalmanFilterA
 
 /**
-* int kalmanFilterA (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length)
+* int kalmanFilterA (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length  	// R0-R3
+* 					 float* DiffArray, float* avgIn, float* avgOut, float* avgDiff);					// on the stack
 */
 
 kalmanFilterA:
-			PUSH {R4-R7, LR}
-			VSTMDB.f32 SP!,{S4-S10}
+			PUSH {R4-R8, LR}		// 6 ints
+			VSTMDB.f32 SP!,{S4-S14}
 
-			MOV R5, R0				// local pointer to current element in InputArray
-			MOV R6, R1				// local pointer to current element in OutputArray
-			MOV R7, R2
-			VLDMIA.f32 R7!, {S4-S8} // local copy of kstate
-			MOV R4, R3 				// local downcounter
+			MOV R4, R0			// local pointer to current element in InputArray
+			LDR R5, [sp, #68]	// pointer to DiffArray
+			LDR R6, [sp, #72]	// pointer to avgIn
+			LDR R7, [sp, #76]	// pointer to avgOut
+			LDR R8, [sp, #80]	// pointer to avgDiff
 
-			VMRS R0, FPSCR
+			VLDMIA.f32 R2!, {S4-S8} // local copy of kstate
+
+
+			VMRS R0, FPSCR			// flushing out the error code
 			BIC R0, R0, #15
 			VMSR FPSCR, R0
 
+			VSUB.f32 S11, S11, S11		// Avg In = 0.0
+			VSUB.f32 S12, S12, S12		// Avg Out = 0.0
+			VSUB.f32 S13, S13, S13		// Avg Diff = 0.0
+			VMOV.f32 S14, R3
+			VCVT.f32.S32 S14, S14		// (float) length
 
-loop:		SUBS R4, R4, #1
+loop:		SUBS R3, R3, #1
 			BLT return
 
-			VLDR.f32 S10, [R5]		// S10 = current InputArray element
+			VLDR.f32 S10, [R4]		// S10 = current InputArray element
 
 			VADD.f32 S7, S7, S4 	// p = p + q
 			VADD.f32 S9, S7, S5 	// p + r
@@ -36,23 +45,38 @@ loop:		SUBS R4, R4, #1
 			VMLA.f32 S6, S8, S9 	// x = x + k*(measurement - x)
 			VMLS.f32 S7, S8, S7 	// p = p - k*p
 
+			VSUB.f32 S9, S6, S10
+			VADD.f32 S11, S11, S6	// avgIn += InputArray[i];
+			VADD.f32 S12, S12, S10	// avgOut += OutputArray[i];
+			VADD.f32 S13, S13, S9	// avgDiff += diffArray[i];
+
 			VMRS R0, FPSCR
 			ANDS R0, R0, #15		// check for exceptions LSL R0, R0, #28
 			BNE exception
 
-			VSTR.f32 S6, [R6]		// current OutputArray element = x
+			VSTR.f32 S6, [R1]		// current OutputArray element = x
+			VSTR.f32 S9, [R5] 		// diffArray[i] = OutputArray[i] - InputArray[i];
 
+			ADD R4, R4, #4			// Moving on for I, O, D arrays
+			ADD R1, R1, #4
 			ADD R5, R5, #4
-			ADD R6, R6, #4
 			B loop
 
 return:
-			VSTMDB.f32 R7!, {S4-S8} // update kstate only if everything went well...
-			VLDMIA.f32 SP!,{S4-S10}
-			POP {R4-R7, PC}
+			VDIV.f32 S11, S11, S14	// avgIn = avgIn/(float)length;
+			VDIV.f32 S12, S12, S14	// avgOut = avgOut/(float)length;
+			VDIV.f32 S13, S13, S14	// avgDiff = avgDiff/(float)length;
+
+			VSTR.f32 S11, [R6]		// pointer to avgIn
+			VSTR.f32 S12, [R7]		// pointer to avgOut
+			VSTR.f32 S13, [R8]		// pointer to avgDiff
+
+			VSTMDB.f32 R2!, {S4-S8} // update kstate, but only if everything went well...
+			VLDMIA.f32 SP!,{S4-S14}
+			POP {R4-R8, PC}
 
 exception:
-			VLDMIA.f32 SP!,{S4-S10}
-			POP {R4-R7, PC}
+			VLDMIA.f32 SP!,{S4-S14}
+			POP {R4-R8, PC}
 
 .end

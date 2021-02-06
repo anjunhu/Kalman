@@ -19,9 +19,8 @@ struct KalmanState{
 /*
  * Single measurement update
  */
-extern float kalmanUpdateA (struct KalmanState* ks, float measurement);
-float kalmanUpdateC (struct KalmanState* ks, float measurement);
-float kalmanUpdateL (struct KalmanState* ks, float measurement);
+extern float kalmanUpdateA (struct KalmanState* ksp, float measurement);
+float kalmanUpdateC (struct KalmanState* ksp, float measurement);
 
 /*
  * Combos
@@ -32,16 +31,25 @@ float kalmanUpdateL (struct KalmanState* ks, float measurement);
  * correct arithmetic value (e.g., it has run into numerical conditions leading to NaN)
  */
 
-int kalmanFilterL (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length);
-extern int kalmanFilterA (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length);
-int kalmanFilterAinC (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length);
-int kalmanFilterC (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length);
+int kalmanFilterL (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
+int kalmanFilterC (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
 
+extern int kalmanFilterA (const float* InputArray, float* OutputArray, struct KalmanState* kstate, int length,
+		float* DiffArray, float* inAvg, float* outAvg, float* diffAvg);
+extern int kalmanStatsA (const float* InputArray, const float* OutputArray, const float* DiffArray, int length,
+		float inAvg, float outAvg, float diffAvg,
+		float* diffStd, float* corrCoef);
+extern int kalmanFilterA_noStats (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length);
+
+int kalmanFilterAinC (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
+int kalmanFilterAinL (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
+int kalmanFilterCinL (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
 /*
  * Utilities written with C
  */
 float sumSqDev (float* inputArray, float avg, int length);
-float corrC (float* inputArray1, float* inputArray2, int avg1, int avg2, int length);
+float corrCoefC (float* inputArray1, float* inputArray2, int avg1, int avg2, int length);
+int corrC (float* inputArray1, float* inputArray2, float* corrArray, int length);
 int convC (float* inputArray1, float* inputArray2, float* convolvedArray, int length1, int length2);
 
 
