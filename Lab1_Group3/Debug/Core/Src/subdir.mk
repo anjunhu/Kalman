@@ -5,7 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 S_SRCS += \
 ../Core/Src/kalmanFilterA.s \
-../Core/Src/kalmanFilterA1.s \
+../Core/Src/kalmanFilterA_noStats.s \
 ../Core/Src/kalmanStatsA.s \
 ../Core/Src/kalmanUpdateA.s \
 ../Core/Src/sumSqDevA.s 
@@ -23,7 +23,7 @@ C_SRCS += \
 
 OBJS += \
 ./Core/Src/kalmanFilterA.o \
-./Core/Src/kalmanFilterA1.o \
+./Core/Src/kalmanFilterA_noStats.o \
 ./Core/Src/kalmanFilterC.o \
 ./Core/Src/kalmanFilterL.o \
 ./Core/Src/kalmanStatsA.o \
@@ -39,7 +39,7 @@ OBJS += \
 
 S_DEPS += \
 ./Core/Src/kalmanFilterA.d \
-./Core/Src/kalmanFilterA1.d \
+./Core/Src/kalmanFilterA_noStats.d \
 ./Core/Src/kalmanStatsA.d \
 ./Core/Src/kalmanUpdateA.d \
 ./Core/Src/sumSqDevA.d 
@@ -59,8 +59,8 @@ C_DEPS += \
 # Each subdirectory must supply rules for building sources it contributes
 Core/Src/kalmanFilterA.o: ../Core/Src/kalmanFilterA.s
 	arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp -MMD -MP -MF"Core/Src/kalmanFilterA.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@" "$<"
-Core/Src/kalmanFilterA1.o: ../Core/Src/kalmanFilterA1.s
-	arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp -MMD -MP -MF"Core/Src/kalmanFilterA1.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@" "$<"
+Core/Src/kalmanFilterA_noStats.o: ../Core/Src/kalmanFilterA_noStats.s
+	arm-none-eabi-gcc -mcpu=cortex-m4 -g3 -c -x assembler-with-cpp -MMD -MP -MF"Core/Src/kalmanFilterA_noStats.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@" "$<"
 Core/Src/kalmanFilterC.o: ../Core/Src/kalmanFilterC.c
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DDEBUG -DSTM32L4S5xx -c -I../Core/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/kalmanFilterC.d" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
 Core/Src/kalmanFilterL.o: ../Core/Src/kalmanFilterL.c

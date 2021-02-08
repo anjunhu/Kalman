@@ -62,13 +62,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-//int _write(int file, char *ptr, int len)
-//{
-//  int i=0;
-//  for(i=0 ; i<len ; i++)
-//    ITM_SendChar((*ptr++));
-//  return len;
-//}
+
 /* USER CODE END 0 */
 
 /**
@@ -105,63 +99,46 @@ int main(void)
 #ifdef LAB_PART_ONE
   struct KalmanState ks5A = {
  		  .q = 0.1,
- 		  .r = 0.1,
+ 		  .r = 0.9,
  		  .x = 5,
- 		  .p = 0.1,
- 		  .k = 0.0
-   };
-  struct KalmanState ks50A = {
- 		  .q = 0.1,
- 		  .r = 0.1,
- 		  .x = 50,
  		  .p = 0.1,
  		  .k = 0.0
    };
 #endif
 
+  //////////////////////////////////////// Assembly
   struct KalmanState ks5AC = {
- 		  .q = 0.1,
- 		  .r = 0.1,
+ 		  .q = 0.01,
+ 		  .r = 0.9,
  		  .x = 5,
- 		  .p = 0.1,
+ 		  .p = 0.01,
  		  .k = 0.0
    };
-  struct KalmanState ks50AC = {
- 		  .q = 0.1,
- 		  .r = 0.1,
+  struct KalmanState ks50 = {
+ 		  .q = 0.01,
+ 		  .r = 0.9,
  		  .x = 50,
- 		  .p = 0.1,
+ 		  .p = 0.01,
  		  .k = 0.0
    };
+///////////////////////////////////////// Plain C
   struct KalmanState ks5C = {
-   		  .q = 0.1,
-   		  .r = 0.1,
+   		  .q = 0.01,
+   		  .r = 0.9,
    		  .x = 5,
-   		  .p = 0.1,
+   		  .p = 0.01,
    		  .k = 0.0
-     };
-    struct KalmanState ks50C = {
-   		  .q = 0.1,
-   		  .r = 0.1,
-   		  .x = 50,
-   		  .p = 0.1,
-   		  .k = 0.0
-     };
+   };
 
-    struct KalmanState ks5L = {
-   		  .q = 0.1,
-   		  .r = 0.1,
+///////////////////////////////////////// CIMSIS-DSP
+   struct KalmanState ks5L = {
+   		  .q = 0.01,
+   		  .r = 0.9,
    		  .x = 5,
-   		  .p = 0.1,
+   		  .p = 0.01,
    		  .k = 0.0
-     };
-    struct KalmanState ks50L = {
-   		  .q = 0.1,
-   		  .r = 0.1,
-   		  .x = 50,
-   		  .p = 0.1,
-   		  .k = 0.0
-     };
+   };
+
 
 #ifdef LAB_PART_ONE
   struct KalmanState ksZero = {
@@ -190,6 +167,21 @@ int main(void)
 	 sanitychecker = kalmanUpdateA(&ks5A, i);
 	 sanitychecker = kalmanUpdateC(&ks5C, i);
   }
+
+  memset(output, 0, sizeof(output));
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ks5A, 101);
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksZero, 101);
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksOverflow, 101);
+  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksUnderflow, 101);
+
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ks5C, 101, 0);
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksZero, 101, 0);
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksOverflow, 101, 0);
+  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksUnderflow, 101, 0);
+
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksZero, 101, 0);
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksOverflow, 101, 0);
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksUnderflow, 101, 0);
 #endif
 
   float TEST_ARRAY[101] = {10.4915760032, 10.1349974709, 9.53992591829, 9.60311878706, 10.4858891793, 10.1104642352, 9.51066931906, 9.75755656493, 9.82154078273, 10.2906541933, 10.4861328671, 9.57321181356, 9.70882714139, 10.4359069357, 9.70644021369, 10.2709894039, 10.0823149505, 10.2954563443, 9.57130449017, 9.66832136479, 10.4521677502, 10.4287240667, 10.1833650752, 10.0066049721, 10.3279461634, 10.4767210803, 10.3790964606, 10.1937408814, 10.0318963522, 10.4939180917, 10.2381858895, 9.59703103024, 9.62757986516, 10.1816981174, 9.65703773168, 10.3905666599, 10.0941977598, 9.93515274393, 9.71017053437, 10.0303874259, 10.0173504397, 9.69022731474, 9.73902896102, 9.52524419732, 10.3270730526, 9.54695650657, 10.3573960542, 9.88773266876, 10.1685038683, 10.1683694089, 9.88406620159, 10.3290065898, 10.2547227265, 10.4733422906, 10.0133952458, 10.4205693583, 9.71335255372, 9.89061396699, 10.1652744131, 10.2580948608, 10.3465431058, 9.98446410493, 9.79376005657, 10.202518901, 9.83867150985, 9.89532986869, 10.2885062658, 9.97748768804, 10.0403923759, 10.1538911808, 9.78303667556, 9.72420149909, 9.59117495073, 10.1716116012, 10.2015818969, 9.90650056596, 10.3251329834, 10.4550120431, 10.4925749165, 10.1548177178, 9.60547133785, 10.4644672766, 10.2326496615, 10.2279703226, 10.3535284606, 10.2437410625, 10.3851531317, 9.90784804928, 9.98208344925, 9.52778805729, 9.69323876912, 9.92987312087, 9.73938925207, 9.60543743477, 9.79600805462, 10.4950988486, 10.2814361401, 9.7985283333, 9.6287888922, 10.4491538991, 9.5799256668};
@@ -198,8 +190,6 @@ int main(void)
 
   float output[101];
 
-  memset(output, 0, sizeof(output));
-  resultholder = kalmanFilterL(TEST_ARRAY, output, &ks5L, 101, 1);
 
   memset(output, 0, sizeof(output));
   resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ks5AC, 101, 1);
@@ -207,24 +197,11 @@ int main(void)
   memset(output, 0, sizeof(output));
   resultholder = kalmanFilterC(TEST_ARRAY, output, &ks5C, 101, 1);
 
-#ifdef LAB_PART_ONE
   memset(output, 0, sizeof(output));
-  resultholder = kalmanFilterA(TEST_ARRAY, output, &ks5A, 101);
-  resultholder = kalmanFilterA(TEST_ARRAY, output, &ks50A, 101);
-  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksZero, 101);
-  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksOverflow, 101);
-  resultholder = kalmanFilterA(TEST_ARRAY, output, &ksUnderflow, 101);
+  resultholder = kalmanFilterL(TEST_ARRAY, output, &ks5L, 101, 1);
 
-  resultholder = kalmanFilterC(TEST_ARRAY, output, &ks50C, 101, 0);
-  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksZero, 101, 0);
-  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksOverflow, 101, 0);
-  resultholder = kalmanFilterC(TEST_ARRAY, output, &ksUnderflow, 101, 0);
-
-  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ks50AC, 101, 0);
-  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksZero, 101, 0);
-  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksOverflow, 101, 0);
-  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ksUnderflow, 101, 0);
-#endif
+  float output50[101];
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ks50, 101, 1);
 
   /* USER CODE END 2 */
 

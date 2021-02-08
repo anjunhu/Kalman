@@ -31,7 +31,7 @@ float kalmanUpdateC (struct KalmanState* ksp, float measurement);
  * correct arithmetic value (e.g., it has run into numerical conditions leading to NaN)
  */
 
-int kalmanFilterL (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
+int kalmanFilterL (const float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
 int kalmanFilterC (float* InputArray, float* OutputArray, struct KalmanState* kstate, int length, int analysis);
 
 extern int kalmanFilterA (const float* InputArray, float* OutputArray, struct KalmanState* kstate, int length,
@@ -48,7 +48,7 @@ int kalmanFilterCinL (float* InputArray, float* OutputArray, struct KalmanState*
  * Utilities written with C
  */
 float sumSqDev (float* inputArray, float avg, int length);
-float corrCoefC (float* inputArray1, float* inputArray2, int avg1, int avg2, int length);
+float corrCoefC (float* inputArray1, float* inputArray2, float avg1, float avg2, int length);
 int corrC (float* inputArray1, float* inputArray2, float* corrArray, int length);
 int convC (float* inputArray1, float* inputArray2, float* convolvedArray, int length1, int length2);
 

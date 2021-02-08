@@ -13,7 +13,9 @@ int kalmanFilterC(float* InputArray, float* OutputArray, struct KalmanState* kst
 	float avgIn = 0.0;
 	float avgOut = 0.0;
 	float avgDiff = 0.0;
-
+	float stdDiff = 0.0;
+	float varDiff = 0.0;
+	float corrCoef = 0.0;
 	// a. Subtraction of original and data obtained by Kalman filter tracking.
 	float diffArray[length];
 	float corrArray[length*2-1];
@@ -44,11 +46,11 @@ int kalmanFilterC(float* InputArray, float* OutputArray, struct KalmanState* kst
 		avgOut = avgOut/(float)length;
 		avgDiff = avgDiff/(float)length;
 
-		float varDiff = sumSqDev(diffArray, avgDiff, length) / (float)length;
-		float stdDiff = powf(varDiff, 0.5);
+		varDiff = sumSqDev(diffArray, avgDiff, length) / (float)length;
+		stdDiff = powf(varDiff, 0.5);
 
 		// c. Calculation of the correlation between the original and tracked vectors.
-		float correlation = corrCoefC(InputArray, OutputArray, avgIn, avgOut, length);
+		corrCoef = corrCoefC(InputArray, OutputArray, avgIn, avgOut, length);
 		status = corrC(InputArray, OutputArray, corrArray, length);
 
 		// d. Calculation of the convolution between the two vectors.
@@ -65,6 +67,7 @@ int kalmanFilterAinC(float* InputArray, float* OutputArray, struct KalmanState* 
 	// b. Calculation of the standard deviation and the average of the difference obtained in a).
 	float avgDiff = 0.0;
 	float stdDiff = 0.0;
+	float varDiff = 0.0;
 
 	// c. Correlation
 	float avgIn = 0.0;
@@ -81,7 +84,7 @@ int kalmanFilterAinC(float* InputArray, float* OutputArray, struct KalmanState* 
 		if (status != 0)
 			return status;
 	}
-	else{
+	else {
 		status = kalmanFilterA(InputArray, OutputArray, kstate, length,
 			diffArray, &avgIn, &avgOut, &avgDiff);
 		if (status != 0)
@@ -94,6 +97,7 @@ int kalmanFilterAinC(float* InputArray, float* OutputArray, struct KalmanState* 
 			return status;
 
 		// c. Calculation of the correlation between the original and tracked vectors.
+		corrCoef = corrCoefC(InputArray, OutputArray, avgIn, avgOut, length);
 		status = corrC(InputArray, OutputArray, corrArray, length);
 
 		// d. Calculation of the convolution between the two vectors.
@@ -117,16 +121,21 @@ float sumSqDev (float* inputArray, float avg, int length){
 	return sumSqDev;
 }
 
-float corrCoefC (float* inputArray1, float* inputArray2, int avg1, int avg2, int length){
+float corrCoefC (float* inputArray1, float* inputArray2, float avg1, float avg2, int length){
 	float corNume = 0.0;
-	float corDeno = 0.0;
+	float corDenoX = 0.0;
+	float corDenoY = 0.0;
 
 	for(int i = 0; i < length; i++){
-		corNume += (inputArray1[i] - avg1) * (inputArray2[i] - avg2);
+		float xi_xbar = inputArray1[i] - avg1;
+		float yi_ybar = inputArray2[i] - avg2;
+		corNume += xi_xbar*yi_ybar;
+		corDenoX += xi_xbar*xi_xbar;
+		corDenoY += yi_ybar*yi_ybar;
 	}
-	corDeno = powf( (sumSqDev(inputArray1, avg1, length)*sumSqDev(inputArray2, avg2, length)) , 0.5);
+	corNume = corNume / sqrt(corDenoX*corDenoY);
 
-	return corNume/corDeno;
+	return corNume;
 }
 
 int corrC (float* inputArrayL, float* inputArrayS, float* corrArray, int length){

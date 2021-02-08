@@ -68,7 +68,6 @@ return:
 			VSTR.f32 S7, [R5]
 			VSTR.f32 S9, [R6]
 
-			VSTMDB.f32 R2!, {S4-S8} // update kstate, but only if everything went well...
 			VLDMIA.f32 SP!,{S4-S8}
 			POP {R4-R6, PC}
 

@@ -1,3 +1,4 @@
-kalmanFilterL.c:12:5:kalmanFilterL	176	dynamic,ignoring_inline_asm
-kalmanFilterL.c:67:5:kalmanFilterAinL	120	dynamic
-kalmanFilterL.c:110:5:kalmanFilterCinL	128	dynamic,ignoring_inline_asm
+kalmanFilterL.c:12:5:kalmanFilterL	104	static,ignoring_inline_asm
+kalmanFilterL.c:63:5:kalmanFilterAinL	32	static
+kalmanFilterL.c:78:5:kalmanFilterCinL	40	static,ignoring_inline_asm
+kalmanFilterL.c:100:5:dsp_analysis	176	dynamic,ignoring_inline_asm

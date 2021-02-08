@@ -1,6 +1,6 @@
 kalmanFilterC.c:12:5:kalmanFilterC	136	dynamic,ignoring_inline_asm
-kalmanFilterC.c:61:5:kalmanFilterAinC	120	dynamic
-kalmanFilterC.c:112:7:sumSqDev	32	static
-kalmanFilterC.c:120:7:corrCoefC	48	static
-kalmanFilterC.c:132:5:corrC	48	static
-kalmanFilterC.c:156:5:convC	32	static
+kalmanFilterC.c:63:5:kalmanFilterAinC	128	dynamic
+kalmanFilterC.c:116:7:sumSqDev	32	static
+kalmanFilterC.c:124:7:corrCoefC	64	static
+kalmanFilterC.c:141:5:corrC	48	static
+kalmanFilterC.c:165:5:convC	32	static
