@@ -138,7 +138,13 @@ int main(void)
    		  .p = 0.01,
    		  .k = 0.0
    };
-
+   struct KalmanState ks5AL = {
+   		  .q = 0.01,
+   		  .r = 0.9,
+   		  .x = 5,
+   		  .p = 0.01,
+   		  .k = 0.0
+   };
 
 #ifdef LAB_PART_ONE
   struct KalmanState ksZero = {
@@ -200,8 +206,11 @@ int main(void)
   memset(output, 0, sizeof(output));
   resultholder = kalmanFilterL(TEST_ARRAY, output, &ks5L, 101, 1);
 
+  memset(output, 0, sizeof(output));
+  resultholder = kalmanFilterAinL(TEST_ARRAY, output, &ks5AL, 101, 1);
+
   float output50[101];
-  resultholder = kalmanFilterAinC(TEST_ARRAY, output, &ks50, 101, 1);
+  resultholder = kalmanFilterAinC(TEST_ARRAY, output50, &ks50, 101, 1);
 
   /* USER CODE END 2 */
 

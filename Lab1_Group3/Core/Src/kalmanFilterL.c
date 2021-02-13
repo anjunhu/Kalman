@@ -24,27 +24,18 @@ int kalmanFilterL(const float* InputArray, float* OutputArray, struct KalmanStat
 
 	for(int i = 0; i < length; i++){
 		ksp->p += ksp->q;
-//		arm_add_f32(&ksp->p, &ksp->q, &ksp->p, 1);
 
 		ksp->k = ksp->p / (ksp->p + ksp->r);
-//		arm_add_f32(&ksp->p, &ksp->r, &temp, 1);
-//		ksp->k = ksp->p / temp;
 
 		pCoeffs[0] = ksp->k;
-//		arm_copy_f32(&ksp->k, pCoeffs, 1);
 		pCoeffs[3] = 1-(ksp->k);
-//		arm_negate_f32(&ksp->k, pCoeffs+3, 1);
-//		arm_offset_f32(pCoeffs+3, 1.0, pCoeffs+3, 1);
 
 		filter_obj.pCoeffs = pCoeffs;
 		arm_biquad_cascade_df1_f32(&filter_obj, InputArray+i, OutputArray+i, blockSize);
 
 		ksp->x = *(OutputArray+i);
-//		arm_copy_f32(OutputArray+i, &ksp->x, 1);
 
 		ksp->p -= ksp->k * ksp->p;
-//		arm_mult_f32(&ksp->p, &ksp->k, &temp, 1);
-//		arm_sub_f32(&ksp->p, &temp, &ksp->p, 1);
 
 		status = __get_FPSCR() & 0x0000000F;
 		if (status != 0)

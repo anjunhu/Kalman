@@ -12,18 +12,17 @@
 
 kalmanFilterA:
 			PUSH {R4-R8, LR}		// 6 ints
-			VSTMDB.f32 SP!,{S4-S14}
 
 			MOV R4, R0			// local pointer to current element in InputArray
-			LDR R5, [sp, #68]	// pointer to DiffArray
-			LDR R6, [sp, #72]	// pointer to avgIn
-			LDR R7, [sp, #76]	// pointer to avgOut
-			LDR R8, [sp, #80]	// pointer to avgDiff
+			LDR R5, [sp, #24]	// pointer to DiffArray
+			LDR R6, [sp, #28]	// pointer to avgIn
+			LDR R7, [sp, #32]	// pointer to avgOut
+			LDR R8, [sp, #36]	// pointer to avgDiff
 
+			VPUSH.f32 {S4-S14}
 			VLDMIA.f32 R2!, {S4-S8} // local copy of kstate
 
-
-			VMRS R0, FPSCR			// flushing out the error code
+			VMRS R0, FPSCR			// flushing out previous error code
 			BIC R0, R0, #15
 			VMSR FPSCR, R0
 
@@ -46,8 +45,8 @@ loop:		SUBS R3, R3, #1
 			VMLS.f32 S7, S8, S7 	// p = p - k*p
 
 			VSUB.f32 S9, S6, S10
-			VADD.f32 S11, S11, S6	// avgIn += InputArray[i];
-			VADD.f32 S12, S12, S10	// avgOut += OutputArray[i];
+			VADD.f32 S12, S12, S6	// avgOut += OutputArray[i]; S6 = x
+			VADD.f32 S11, S11, S10	// avgIn += InputArray[i]; S10 is the measurement
 			VADD.f32 S13, S13, S9	// avgDiff += diffArray[i];
 
 			VMRS R0, FPSCR
@@ -72,11 +71,11 @@ return:
 			VSTR.f32 S13, [R8]		// pointer to avgDiff
 
 			VSTMDB.f32 R2!, {S4-S8} // update kstate, but only if everything went well...
-			VLDMIA.f32 SP!,{S4-S14}
+			VPOP.f32 {S4-S14}
 			POP {R4-R8, PC}
 
 exception:
-			VLDMIA.f32 SP!,{S4-S14}
+			VPOP.f32 {S4-S14}
 			POP {R4-R8, PC}
 
 .end

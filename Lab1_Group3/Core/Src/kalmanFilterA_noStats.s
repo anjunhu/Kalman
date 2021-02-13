@@ -10,7 +10,7 @@
 */
 
 kalmanFilterA_noStats:
-			PUSH {R4-R7, LR}
+			PUSH {R4-R7, LR}		// save previous register status onto stack
 			VSTMDB.f32 SP!,{S4-S10}
 
 			MOV R5, R0				// local pointer to current element in InputArray
@@ -19,7 +19,7 @@ kalmanFilterA_noStats:
 			VLDMIA.f32 R7!, {S4-S8} // local copy of kstate
 			MOV R4, R3 				// local downcounter
 
-			VMRS R0, FPSCR
+			VMRS R0, FPSCR			// flush out previous errors
 			BIC R0, R0, #15
 			VMSR FPSCR, R0
 
